@@ -14,10 +14,12 @@
 
 extern crate cast;
 extern crate embedded_hal as hal;
+#[cfg(feature = "i2c")]
 pub extern crate i2cdev;
 pub extern crate nb;
 pub extern crate serial_core;
 pub extern crate serial_unix;
+#[cfg(feature = "spi")]
 pub extern crate spidev;
 
 #[cfg(feature = "gpio_sysfs")]
@@ -32,9 +34,13 @@ use std::time::Duration;
 use std::{ops, thread};
 
 use cast::{u32, u64};
+#[cfg(feature = "i2c")]
 use hal::blocking::i2c::Operation as I2cOperation;
+#[cfg(feature = "i2c")]
 use i2cdev::core::{I2CDevice, I2CMessage, I2CTransfer};
+#[cfg(feature = "i2c")]
 use i2cdev::linux::LinuxI2CMessage;
+#[cfg(feature = "spi")]
 use spidev::SpidevTransfer;
 
 mod serial;
@@ -118,6 +124,7 @@ impl hal::blocking::delay::DelayMs<u64> for Delay {
     }
 }
 
+#[cfg(feature = "i2c")]
 /// Newtype around [`i2cdev::linux::LinuxI2CDevice`] that implements the `embedded-hal` traits
 ///
 /// [`i2cdev::linux::LinuxI2CDevice`]: https://docs.rs/i2cdev/0.5.0/i2cdev/linux/struct.LinuxI2CDevice.html
@@ -127,6 +134,7 @@ pub struct I2cdev {
     address: Option<u8>,
 }
 
+#[cfg(feature = "i2c")]
 impl I2cdev {
     /// See [`i2cdev::linux::LinuxI2CDevice::new`][0] for details.
     ///
@@ -152,6 +160,7 @@ impl I2cdev {
     }
 }
 
+#[cfg(feature = "i2c")]
 impl hal::blocking::i2c::Read for I2cdev {
     type Error = i2cdev::linux::LinuxI2CError;
 
@@ -161,6 +170,7 @@ impl hal::blocking::i2c::Read for I2cdev {
     }
 }
 
+#[cfg(feature = "i2c")]
 impl hal::blocking::i2c::Write for I2cdev {
     type Error = i2cdev::linux::LinuxI2CError;
 
@@ -170,6 +180,7 @@ impl hal::blocking::i2c::Write for I2cdev {
     }
 }
 
+#[cfg(feature = "i2c")]
 impl hal::blocking::i2c::WriteRead for I2cdev {
     type Error = i2cdev::linux::LinuxI2CError;
 
@@ -185,6 +196,7 @@ impl hal::blocking::i2c::WriteRead for I2cdev {
     }
 }
 
+#[cfg(feature = "i2c")]
 impl hal::blocking::i2c::Transactional for I2cdev {
     type Error = i2cdev::linux::LinuxI2CError;
 
@@ -204,6 +216,7 @@ impl hal::blocking::i2c::Transactional for I2cdev {
     }
 }
 
+#[cfg(feature = "i2c")]
 impl ops::Deref for I2cdev {
     type Target = i2cdev::linux::LinuxI2CDevice;
 
@@ -212,17 +225,20 @@ impl ops::Deref for I2cdev {
     }
 }
 
+#[cfg(feature = "i2c")]
 impl ops::DerefMut for I2cdev {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.inner
     }
 }
 
+#[cfg(feature = "spi")]
 /// Newtype around [`spidev::Spidev`] that implements the `embedded-hal` traits
 ///
 /// [`spidev::Spidev`]: https://docs.rs/spidev/0.5.0/spidev/struct.Spidev.html
 pub struct Spidev(pub spidev::Spidev);
 
+#[cfg(feature = "spi")]
 impl Spidev {
     /// See [`spidev::Spidev::open`][0] for details.
     ///
@@ -235,6 +251,7 @@ impl Spidev {
     }
 }
 
+#[cfg(feature = "spi")]
 impl hal::blocking::spi::Transfer<u8> for Spidev {
     type Error = io::Error;
 
@@ -246,6 +263,7 @@ impl hal::blocking::spi::Transfer<u8> for Spidev {
     }
 }
 
+#[cfg(feature = "spi")]
 impl hal::blocking::spi::Write<u8> for Spidev {
     type Error = io::Error;
 
@@ -254,8 +272,10 @@ impl hal::blocking::spi::Write<u8> for Spidev {
     }
 }
 
+#[cfg(feature = "spi")]
 pub use hal::blocking::spi::Operation as SpiOperation;
 
+#[cfg(feature = "spi")]
 impl hal::blocking::spi::Transactional<u8> for Spidev {
     type Error = io::Error;
 
@@ -287,6 +307,7 @@ impl hal::blocking::spi::Transactional<u8> for Spidev {
     }
 }
 
+#[cfg(feature = "spi")]
 impl ops::Deref for Spidev {
     type Target = spidev::Spidev;
 
@@ -295,6 +316,7 @@ impl ops::Deref for Spidev {
     }
 }
 
+#[cfg(feature = "spi")]
 impl ops::DerefMut for Spidev {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0

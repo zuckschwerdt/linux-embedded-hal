@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Added feature flag for `spi` and `i2c`
 
 ## [v0.3.2] - 2021-10-25
 
